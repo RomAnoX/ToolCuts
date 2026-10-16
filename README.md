@@ -10,7 +10,7 @@
 
 ToolCuts turns the websites you reach for every day (encoders, generators, dashboards, internal tools) into a board of shortcuts. Add a URL, click its box, and the tool opens in its own window. It is about 6 MB, has no server, and is built on [tinyjs](https://tinyjs.app): a [txiki.js](https://github.com/saghul/txiki.js) backend with a native webview window instead of Electron.
 
-![Grid view](docs/images/grid-view.png)
+![ToolCuts empty board](docs/images/empty-board.png)
 
 ## Features
 
@@ -25,9 +25,9 @@ ToolCuts turns the websites you reach for every day (encoders, generators, dashb
 - **Safe deletes.** Optionally ask for confirmation before removing a tool (Settings).
 - **Looks native.** Follows the system light and dark appearance.
 
-| Empty board | List view | Search (`⌘K`) |
+| Grid view | List view | Search (`⌘K`) |
 | --- | --- | --- |
-| ![Empty board](docs/images/empty-board.png) | ![List view](docs/images/list-view.png) | ![Search](docs/images/search.png) |
+| ![Grid view](docs/images/grid-view.png) | ![List view](docs/images/list-view.png) | ![Search](docs/images/search.png) |
 
 ## Using ToolCuts
 
