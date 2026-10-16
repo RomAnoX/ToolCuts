@@ -3,14 +3,14 @@
 A small macOS desktop app that keeps web tools (URLs) on a board of shortcut boxes. Clicking a box opens that URL in its own native window. Built on **tinyjs** (txiki.js backend + native WKWebView window, no Electron, no HTTP server).
 
 - Repo: https://github.com/RomAnoX/ToolCuts (branch `main`, MIT)
-- First release: `v0.1.0` (universal DMG attached to the GitHub Release)
+- Releases: `v0.1.0` (first), `v0.2.0` (theme setting, trash icon, close button for open tools). Each has a universal DMG attached to its GitHub Release.
 - Before changing anything tinyjs-related, read `.claude/skills/tinyjs/SKILL.md` and the files in `.claude/skills/tinyjs/references/` (api.md, platforms.md, recipes.md, release.md). `.agents/skills/tinyjs/` is an identical copy for other agent tools.
 
 ## Commands
 
 ```sh
 tinyjs dev                          # run with hot reload (frontend edits swap in place, backend edits restart)
-tinyjs build --dmg                  # dist/ToolCuts.app + dist/ToolCuts-0.1.0.dmg (host CPU only)
+tinyjs build --dmg                  # dist/ToolCuts.app + dist/ToolCuts-<version>.dmg (host CPU only)
 tinyjs build --dmg --universal      # Intel + Apple Silicon (this is what the release uses)
 TINYJS_DEBUG=1 tinyjs dev           # trace every bridge message
 ```
@@ -22,10 +22,10 @@ There is no test suite, bundler, or package.json. The frontend is plain HTML/CSS
 ```
 tinyjs.json          app config: name/title "ToolCuts", size 960x640, id, api.origins gate
 icon.png             1024x1024 app icon, transparent squircle with ~10% margin
-src/main.js          backend (txiki.js): empty `api`, and onWindowClosed which pushes 'tool-closed' to the page
+src/main.js          backend (txiki.js): `api.closeWindow({ id })` (closes a tool window on request) and onWindowClosed, which pushes 'tool-closed' to the page
 src/frontend/
   index.html         header, board container, 4 <dialog>s (add, configure, settings, search palette)
-  style.css          all styles; CSS variables, light/dark via prefers-color-scheme
+  style.css          all styles; CSS variables; light is the default, dark comes from the media query unless `data-theme="light"`, or from `data-theme="dark"`
   app.js             all board logic
   icons.js           Lucide icons bundled as inline SVG markup (ICONS map + icon() helper)
   tool.html          tiny page that redirects its window to a tool's URL
@@ -38,12 +38,12 @@ types/               tinyjs type definitions (from the scaffold)
 
 **Data** lives in `tiny.store` (persisted by tinyjs, keyed by the app `id`):
 - `tools`: array of `{ name, url, description?, icon? }`. `icon` empty means use the favicon; otherwise an emoji/text or an `http(s)` image URL.
-- `settings`: `{ confirmDelete: true, view: 'grid' | 'list' }`.
+- `settings`: `{ confirmDelete: true, view: 'grid' | 'list', theme: 'system' | 'light' | 'dark' }`. Theme is applied by `applyTheme()` as `data-theme` on `<html>`; with `system` the attribute is removed and the `prefers-color-scheme` media query decides.
 - `open:<windowId>`: temporary, the URL a just-opened tool window should load. Deleted when that window closes.
 
 **Opening a tool** (`openTool` in app.js): store `open:<id>` = URL, call `tiny.win.open(id, { page: 'tool.html', ... })`. `tool.html` reads `tiny.win.id`, looks up the URL in the store, and does `location.replace(url)`. The dashboard tracks `open[windowId] = url` to render the "open" state.
 
-**Open-state tracking**: backend `onWindowClosed` (src/main.js) calls `app.push('tool-closed', id)`; the page listens with `tiny.api.on('tool-closed')`, drops the entry, deletes the store key, and re-renders. State is in memory only: reloading the dashboard forgets which windows are open.
+**Open-state tracking**: backend `onWindowClosed` (src/main.js) calls `app.push('tool-closed', id)`; the page listens with `tiny.api.on('tool-closed')`, drops the entry, deletes the store key, and re-renders. State is in memory only: reloading the dashboard forgets which windows are open. An open tool shows a close button (top-left of its box, inline in list view) that calls `tiny.api.call('closeWindow', { id })` for every window opened for that tool; the page cannot close other windows itself, hence the backend method. On startup the dashboard deletes leftover `open:*` store keys from windows that were open when the app quit.
 
 **Adding a tool**: `normalizeUrl` (prepends `https://` when no `http(s)://` is typed), then `fetchMeta` uses `tiny.fetch` (backend-proxied, no CORS) and `DOMParser` to read `<title>` and `meta[name=description]` / `og:description`. Name falls back to the hostname. Favicons come from Google's `s2/favicons` service, and broken images fall back to the Lucide `link` icon (a capture-phase `error` listener on `document`).
 
@@ -77,12 +77,15 @@ types/               tinyjs type definitions (from the scaffold)
 - The app window needs a display, so `tinyjs dev` cannot run headless. To check UI without it: copy `src/frontend` to a scratch folder, inject a stub `window.tiny = { store, api, win, dialog, fetch, menu, clipboard }` before `icons.js`, and screenshot with `Google Chrome --headless=new --screenshot=... file://.../index.html`. This was used to catch the broken-icon bug.
 - Built-app check: `tinyjs build --dmg`, mount the DMG, `codesign --verify --deep --strict`, launch, then screenshot the window (it opened on a secondary display; find bounds with System Events and use `screencapture -R`). `osascript ... keystroke "n" using command down` exercises ⌘N and ⌘K.
 
+- Verified with a self-driving test page (`TINYJS_HTML=/abs/test.html tinyjs dev`, results written to `~/Library/Application Support/com.example.toolcuts/store.json` via `tiny.store.set('results', ...)`): `closeWindow` closes the window, and `onWindowClosed` receives the bare window id string. Back up and restore store.json around such tests, because the test runs against the real app data.
+- Synthetic clicks from System Events (`click at`) do not reach web content in the built app. Use ⌘K/⌘N keystrokes to drive it; CGEvent mouse clicks were unreliable here.
+
 ## State and open items
 
-- Done: board, smart add, configure dialog (name, URL, description, icon, fetch description), settings (confirm-on-delete), grid/list views, search palette, ⌘N/⌘K, copy URL, drag reorder, open-state indicator, empty-state hero, README with screenshots, `v0.1.0` release (universal, ad-hoc signed).
+- Done: board, smart add, configure dialog (name, URL, description, icon, fetch description), settings (confirm-on-delete), grid/list views, theme setting (system/light/dark), search palette, ⌘N/⌘K, copy URL, drag reorder, open-state indicator, empty-state hero, README with screenshots, `v0.1.0` and `v0.2.0` releases (universal, ad-hoc signed). Release flow: bump `version` in tinyjs.json, `tinyjs build --universal --dmg`, verify, commit and push, then `gh release create vX.Y.Z dist/ToolCuts-X.Y.Z.dmg`.
 - **Not notarized.** The owner has no Apple Developer account yet. Users get a Gatekeeper warning; the README and release notes document right-click → Open and `xattr -dr com.apple.quarantine`. To fix: enroll in the Apple Developer Program, create a "Developer ID Application" certificate, run `xcrun notarytool store-credentials`, set `signIdentity` and `notarize.profile` in tinyjs.json, then `tinyjs build --universal --dmg && tinyjs notarize --universal --dmg`, and remove the workaround text.
-- **Bundle id is still the placeholder `com.example.toolcuts`.** It keys users' saved data and is baked into signing, so change it (e.g. `com.romanox.toolcuts`) before many people install, or they will lose their tools on the switch. Requires a `0.1.1` release.
-- Unverified assumptions to check when convenient: the exact shape of the `onWindowClosed` argument (handled as a bare id or `{ id | window }`), and which window receives a menu click when several windows are open (⌘N/⌘K only act in the dashboard).
+- **Bundle id is still the placeholder `com.example.toolcuts`.** It keys users' saved data and is baked into signing, so change it (e.g. `com.romanox.toolcuts`) before many people install, or they will lose their tools on the switch. Requires a new release.
+- Unverified assumptions to check when convenient: which window receives a menu click when several windows are open (⌘N/⌘K only act in the dashboard).
 - Ideas not built: reuse/focus an already-open tool window instead of opening a second, remember open windows across dashboard reloads, import/export of tools, categories, a file picker for custom icons, Windows/Linux testing (tinyjs supports them in beta; ToolCuts is only tested on macOS).
 - The template's unused backend functions (`sysinfo`, `listDir`, `readFileHead`, the `tick` timer) were removed; `src/main.js` is now just an empty `api` plus `onWindowClosed`.
 

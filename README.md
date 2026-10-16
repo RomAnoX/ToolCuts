@@ -15,7 +15,7 @@ ToolCuts turns the websites you reach for every day (encoders, generators, dashb
 ## Features
 
 - **One board for all your tools.** Save any URL as a shortcut box.
-- **Opens in its own window.** Each tool gets a separate window, so it works even for sites that refuse to load inside an iframe (`X-Frame-Options`). The board marks tools that are currently open.
+- **Opens in its own window.** Each tool gets a separate window, so it works even for sites that refuse to load inside an iframe (`X-Frame-Options`). The board marks tools that are currently open and gives them a close button.
 - **Smart add.** Enter a URL and ToolCuts fetches the page title, description and favicon for you. Type just `example.com` and `https://` is added; type a full URL with `http://` or `https://` and it is kept as written.
 - **Configure each tool.** Edit the name, URL, description and icon (emoji, image URL, or the site's favicon). Offline or missing favicons fall back to a default icon.
 - **Grid or list view.** The list view shows each tool's description under its name.
@@ -23,7 +23,7 @@ ToolCuts turns the websites you reach for every day (encoders, generators, dashb
 - **Keyboard friendly.** `⌘N` adds a tool, and every box can be reached with Tab and opened with Enter.
 - **Copy a tool's URL** with one click, and drag boxes to reorder them.
 - **Safe deletes.** Optionally ask for confirmation before removing a tool (Settings).
-- **Looks native.** Follows the system light and dark appearance.
+- **Theme.** Match your computer's light/dark appearance, or force Light or Dark (Settings).
 
 | Grid view | List view | Search (`⌘K`) |
 | --- | --- | --- |
@@ -38,7 +38,8 @@ ToolCuts turns the websites you reach for every day (encoders, generators, dashb
 | Search tools | `⌘K` or the Search button; ↑ ↓ to choose, Enter to open |
 | Edit a tool | Hover the box and click the gear icon |
 | Copy a tool's URL | Hover the box and click the copy icon |
-| Remove a tool | Hover the box and click the × icon |
+| Close an open tool | Click the × on its box (shown while the tool is open) |
+| Remove a tool | Hover the box and click the red trash icon |
 | Reorder | Drag a box or row onto another |
 | Switch view | Grid / list toggle in the header |
 
@@ -63,7 +64,7 @@ tinyjs dev      # run with hot reload
 ## Build
 
 ```sh
-tinyjs build --dmg              # dist/ToolCuts.app and dist/ToolCuts-0.1.0.dmg
+tinyjs build --dmg              # dist/ToolCuts.app and dist/ToolCuts-<version>.dmg
 tinyjs build --dmg --universal  # one build for Intel and Apple Silicon
 ```
 

@@ -1,10 +1,14 @@
 const $ = (id) => document.getElementById(id);
 let tools = [];
-let settings = { confirmDelete: true, view: 'grid' };
+let settings = { confirmDelete: true, view: 'grid', theme: 'system' };
 const open = {}; // window id -> tool url
 let editing = null; // tool being configured
 let results = [], sel = 0; // palette state
 
+const applyTheme = () => {
+  if (settings.theme === 'system') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = settings.theme;
+};
 const save = () => tiny.store.set('tools', tools);
 const saveSettings = () => tiny.store.set('settings', settings);
 const esc = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -50,9 +54,10 @@ function render() {
     `${iconHtml(t)}<span class="text"><span class="name">${esc(t.name)}</span>` +
     `<span class="tdesc">${esc(t.description || '')}</span></span>`+ `<span class="host">${esc(new URL(t.url).host)}</span>` +
     `<span class="badge">Open</span>` +
+    (isOpen(t) ? `<button class="closewin" data-close="${i}" title="Close tool" aria-label="Close ${esc(t.name)}">${icon('x')}</button>` : '') +
     `<div class="ctl"><button class="copy" data-copy="${i}" title="Copy URL" aria-label="Copy URL of ${esc(t.name)}">${icon('copy')}</button>` +
     `<button class="cfg" data-cfg="${i}" title="Configure" aria-label="Configure ${esc(t.name)}">${icon('settings')}</button>` +
-    `<button class="del" data-del="${i}" title="Remove" aria-label="Remove ${esc(t.name)}">${icon('x')}</button></div></div>`).join('');
+    `<button class="del" data-del="${i}" title="Remove" aria-label="Remove ${esc(t.name)}">${icon('trash')}</button></div></div>`).join('');
 }
 
 async function openTool(t) {
@@ -71,7 +76,11 @@ async function removeTool(i) {
 
 $('grid').onclick = (e) => {
   if (e.target.closest('#heroAdd')) return openAdd();
-  const { del, cfg, copy } = e.target.closest('[data-del],[data-cfg],[data-copy]')?.dataset ?? {}; // click may land on the svg inside
+  const { del, cfg, copy, close } = e.target.closest('[data-del],[data-cfg],[data-copy],[data-close]')?.dataset ?? {}; // click may land on the svg inside
+  if (close != null) { // close every window opened for this tool; 'tool-closed' updates the board
+    const url = tools[+close].url;
+    return Object.keys(open).filter((id) => open[id] === url).forEach((id) => tiny.api.call('closeWindow', { id }));
+  }
   if (copy != null) {
     tiny.clipboard.write({ text: tools[+copy].url });
     const b = e.target.closest('.copy');
@@ -125,8 +134,8 @@ $('vGrid').onclick = () => { settings.view = 'grid'; saveSettings(); render(); }
 $('vList').onclick = () => { settings.view = 'list'; saveSettings(); render(); };
 
 // settings
-$('setBtn').onclick = () => { $('setConfirm').checked = settings.confirmDelete; $('setDlg').showModal(); };
-$('setForm').onsubmit = () => { settings.confirmDelete = $('setConfirm').checked; saveSettings(); };
+$('setBtn').onclick = () => { $('setConfirm').checked = settings.confirmDelete; document.querySelector(`input[name=theme][value=${settings.theme}]`).checked = true; $('setDlg').showModal(); };
+$('setForm').onsubmit = () => { settings.confirmDelete = $('setConfirm').checked; settings.theme = document.querySelector('input[name=theme]:checked').value; applyTheme(); saveSettings(); };
 
 // add
 const openAdd = () => { $('url').value = ''; $('addErr').textContent = ''; $('addDlg').showModal(); };
@@ -209,7 +218,10 @@ tiny.api.on('tool-closed', (id) => { delete open[id]; tiny.store.delete('open:' 
 
 (async () => {
   settings = { ...settings, ...(await tiny.store.get('settings')) };
+  applyTheme();
   tools = (await tiny.store.get('tools')) || [];
+  // drop URL handoffs left by tool windows that were still open when the app quit
+  for (const k of Object.keys(await tiny.store.all())) if (k.startsWith('open:')) tiny.store.delete(k);
   render();
 })();
 

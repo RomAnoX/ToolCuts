@@ -49,6 +49,12 @@
   <form method="dialog" id="setForm">
     <h2>Settings</h2>
     <p class="desc">Adjust how ToolCuts behaves. Changes apply when you save.</p>
+    <fieldset>
+      <legend>Theme</legend>
+      <label class="check"><input type="radio" name="theme" value="system"> Match my computer</label>
+      <label class="check"><input type="radio" name="theme" value="light"> Light</label>
+      <label class="check"><input type="radio" name="theme" value="dark"> Dark</label>
+    </fieldset>
     <label class="check"><input type="checkbox" id="setConfirm"> Ask for confirmation before deleting a tool</label>
     <menu><button type="button" class="ghost">Cancel</button><button>Save</button></menu>
   </form>
