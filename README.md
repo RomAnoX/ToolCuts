@@ -44,7 +44,13 @@ ToolCuts turns the websites you reach for every day (encoders, generators, dashb
 
 Your tools and settings are stored locally with the tinyjs store. Nothing is sent anywhere except the requests that fetch each page's title and description, and the favicon lookup (Google's favicon service).
 
-## Run it
+## Download
+
+Get the latest `ToolCuts-<version>.dmg` from the [Releases page](https://github.com/RomAnoX/ToolCuts/releases), open it, and drag ToolCuts to Applications. It runs on Intel and Apple Silicon Macs (macOS 15 or newer).
+
+The app is not notarized yet, so the first time you open it macOS may say it can't verify the developer. Right-click the app, choose **Open**, then confirm. Or run `xattr -dr com.apple.quarantine /Applications/ToolCuts.app`.
+
+## Run from source
 
 You need the [tinyjs CLI](https://tinyjs.app). ToolCuts requires tinyjs 0.42.2 or newer and macOS 15 or newer.
 
