@@ -1,0 +1,19 @@
+README.md
+  s_0503f90b95bf52::t_ba8308fd4a7fd5 13,28,30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2b6bd710d16e3057d6ddc315dcefffab0eadb6a6",
+  "prompts": {},
+  "sessions": {
+    "s_0503f90b95bf52": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35cdc724-43ae-4893-9aa2-39a52d1d83d6",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Ulises Acosta <ulises.xsoft@gmail.com>"
+    }
+  }
+}
