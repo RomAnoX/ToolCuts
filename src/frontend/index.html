@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ToolCuts</title>
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="top">
+  <h1><img src="logo.png" alt="">ToolCuts</h1>
+  <button id="searchBtn" class="search" title="Search tools (⌘K)"><span data-icon="search"></span><span>Search tools</span><kbd>⌘K</kbd></button>
+  <div class="seg" role="group" aria-label="View">
+    <button id="vGrid" title="Grid view" aria-label="Grid view"><span data-icon="grid"></span></button>
+    <button id="vList" title="List view" aria-label="List view"><span data-icon="list"></span></button>
+  </div>
+  <button id="setBtn" class="ghost"><span data-icon="settings"></span>Settings</button>
+  <button id="addBtn" title="Add tool (⌘N)"><span data-icon="plus"></span>Add tool</button>
+</header>
+<main id="grid"></main>
+
+<dialog id="addDlg">
+  <form method="dialog" id="addForm">
+    <h2>Add tool</h2>
+    <p class="desc">Save a website as a tool shortcut. It shows up as a box on your board and opens in its own window.</p>
+    <label>URL <input id="url" placeholder="example.com" required autofocus></label>
+    <p class="hint">Enter a full URL with the protocol (http:// or https://), or just the address and https:// will be used by default.</p>
+    <div class="err" id="addErr"></div>
+    <menu><button type="button" class="ghost">Cancel</button><button id="addOk">Add</button></menu>
+  </form>
+</dialog>
+
+<dialog id="cfgDlg">
+  <form method="dialog" id="cfgForm">
+    <h2>Configure tool</h2>
+    <label>Name <input id="cfgName" required></label>
+    <label>URL <input id="cfgUrl" required></label>
+    <label>Description
+      <textarea id="cfgDesc" rows="3" placeholder="What is this tool for?"></textarea>
+    </label>
+    <button type="button" id="cfgFetch" class="ghost fetch">Fetch description from URL</button>
+    <label>Icon <input id="cfgIcon" placeholder="emoji, image URL, or blank for favicon"></label>
+    <div class="err" id="cfgErr"></div>
+    <menu><button type="button" class="ghost">Cancel</button><button>Save</button></menu>
+  </form>
+</dialog>
+
+<dialog id="setDlg">
+  <form method="dialog" id="setForm">
+    <h2>Settings</h2>
+    <p class="desc">Adjust how ToolCuts behaves. Changes apply when you save.</p>
+    <label class="check"><input type="checkbox" id="setConfirm"> Ask for confirmation before deleting a tool</label>
+    <menu><button type="button" class="ghost">Cancel</button><button>Save</button></menu>
+  </form>
+</dialog>
+
+<dialog id="palette">
+  <input id="q" placeholder="Search tools…" autocomplete="off" spellcheck="false">
+  <ul id="results"></ul>
+  <p class="hint">↑ ↓ to choose, Enter to open, Esc to close</p>
+</dialog>
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

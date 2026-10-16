@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Loading…</title></head>
+<body><script>
+// top-level navigation ignores X-Frame-Options; backend "api" origins gate the site out
+(async () => {
+  const u = await tiny.store.get('open:' + tiny.win.id);
+  if (/^https?:\/\//i.test(u)) location.replace(u);
+})();
+</script></body></html>

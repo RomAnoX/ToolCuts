@@ -1,0 +1,13 @@
+{
+  "name": "ToolCuts",
+  "title": "ToolCuts",
+  "size": "960x640",
+  "id": "com.example.toolcuts",
+  "version": "0.1.0",
+  "minTinyjsVersion": "0.42.2",
+  "api": {
+    "origins": {
+      "file://*": "all"
+    }
+  }
+}
